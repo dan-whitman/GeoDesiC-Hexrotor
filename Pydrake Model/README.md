@@ -24,7 +24,7 @@ This directory includes the current Pydrake model for dynamical modeling and con
 ## Contents
 - **HexRotorDrake.py:** main script for model
 - **/inputs:**
-    - ```config.py:```: configuration file for model user inputs
+    - ```config.py:``` configuration file for model user inputs
 - **/models:**
     - ```HexRotor.urdf.xacro:``` ```.urdf.xacro``` file for the hexrotor
 - **/utils:** 
