@@ -1,10 +1,9 @@
 ##### CONFIG
-# must run the following in terminal to establish pydrake environment variables:
+# must run the following in terminal to establish pydrake environment variables OR add to ~./bashrc:
 '''
 export PATH="/opt/drake/bin${PATH:+:${PATH}}"
 export PYTHONPATH="/opt/drake/lib/python$(python3 -c 'import sys; print("{0}.{1}".format(*sys.version_info))')/site-packages${PYTHONPATH:+:${PYTHONPATH}}"
 '''
-# will work out an automatica way to establish this later
 
 ##### PYDRAKE IMPORTS
 # from pydrake.all import 
@@ -14,8 +13,10 @@ export PYTHONPATH="/opt/drake/lib/python$(python3 -c 'import sys; print("{0}.{1}
 ##### SELF-DEFINED IMPORTS
 import inputs.config as config
 from utils.system import HexRotorDiagram, HexRotorContext
+from utils.linear import LinearSys
+from utils.control import ControlLQRDiagram, ControlDiagram
 from utils.simulate import SimDiagram, SimContext, SimRun
-from utils.print import PrintGenCoords
+from utils.print import PrintGenCoords, PrintLinearSys
 from utils.visual import VisualHold
 
 ##### SCRIPT INITIALIZATION FUNCTION (initializes commands and config args)
@@ -36,31 +37,27 @@ if __name__ == '__main__':
 
     # creating open-loop system
     open_diagram = HexRotorDiagram() # create open-loop diagram
-    open_initial_context = HexRotorContext(open_diagram=open_diagram) # define open-loop initial context
+    open_initial_context = HexRotorContext(open_diagram=open_diagram, context_type='initial') # define open-loop initial context
+    open_equil_context = HexRotorContext(open_diagram=open_diagram, context_type='equil') # define open-loop equilibrium context
 
-    # creating closed-loop system
+    # linearizing system
+    open_affine_system = LinearSys(system=open_diagram, context=open_equil_context)
+
+    # creating closed-loop system (ADD MORE CONTROL OPTIONS LATER)
+    if config.args.control == 'lqr': control_diagram = ControlLQRDiagram(affine_system=open_affine_system) # create lqr controller
+    closed_diagram = ControlDiagram(open_diagram=open_diagram, control_diagram=control_diagram) # create closed-loop diagram
 
     # creating simulation system
-    sim_diagram = SimDiagram(closed_diagram=open_diagram) # create final simulaton diagram
+    sim_diagram = SimDiagram(closed_diagram=closed_diagram) # create final simulaton diagram
     sim_context = SimContext(sim_diagram=sim_diagram, initial_context=open_initial_context) # define final simulation context
     SimRun(sim_diagram=sim_diagram, sim_context=sim_context) # running the simulation
 
     # printing system information
     PrintGenCoords(diagram=open_diagram)
+    PrintLinearSys(affine_system=open_affine_system)
 
-    VisualHold() # holding visualization open (CHANGE LATER TO MAKE OPTIONAL)
+    VisualHold() # holding visualization open (CHANGE LATER TO MAKE VISUALIZATION OPTIONAL)
 
-    # add saving data?
+    # (ADD EXPORTING DATA LATER)
 
-    print(f'\n=====CLOSING SCRIPT=====')
-
-    
-
-# linear_system = LinearSys(system=open_diagram, context=context)
-
-# # determining LQR weights
-# Q = np.eye(q_num + v_num) # LQR weight matrix
-# R = np.eye(u_num) # LQR weight matrix
-# N = np.zeros((q_num + v_num, u_num)) # LQR weight matrix
-
-# K = LQRK(linear_system=linear_system, Q=Q, R=R, N=N)
+    print(f'=====CLOSING SCRIPT=====')

@@ -109,9 +109,18 @@ def HexRotorDiagram() -> Diagram:
     # complete diagram
     return open_builder.Build()
 
-##### HEXROTOR INITIAL CONTEXT FUNCTION (creates initial context from diagram)
-def HexRotorContext(open_diagram: Diagram) -> Context:
-    print(f'\n=====CREATING HEXROTOR CONTEXT=====')
+##### HEXROTOR INITIAL CONTEXT FUNCTION (creates desired context from diagram)
+def HexRotorContext(open_diagram: Diagram, context_type: str) -> Context:
+    if context_type == 'initial': print(f'\n=====CREATING HEXROTOR INITIAL CONTEXT=====')
+    elif context_type == 'equil': print(f'\n=====CREATING HEXROTOR EQUILIBRIUM CONTEXT=====')
+
+    # defining context variables
+    if context_type == 'initial': # if initial context
+        p = config.rotor_initial_position
+        rpy = config.rotor_initial_rpy
+    elif context_type == 'equil': # if equilibrium context
+        p = config.rotor_equil_position
+        rpy = config.rotor_equil_rpy
 
     # creating contexts
     open_context = open_diagram.CreateDefaultContext() # creating numerical context
@@ -122,25 +131,32 @@ def HexRotorContext(open_diagram: Diagram) -> Context:
     rotor_instance = plant.GetModelInstanceByName(name='hex_rotor') # hexrotor instance
 
     rotor_body = plant.GetBodyByName(name='rotor_base')
-    X_WR = RigidTransform(rpy=config.rotor_initial_rpy, p=config.rotor_initial_position) # target transform
+    X_WR = RigidTransform(rpy=rpy, p=p) # target transform
     plant.SetFreeBodyPose(context=plant_context, body=rotor_body, X_JpJc=X_WR) # placing hexrotor
 
-    # defining initial conditions
-    config.v_zero = np.zeros(config.v_num) # setting velocities
+    # defining context state conditions (CAN CHANGE LATER TO SET DIFFERENT FOR EACH CONTEXT)
+    q_zero = plant.GetPositions(context=plant_context)
+    v_zero = np.zeros(config.v_num) # setting velocities
 
     rotor_mass = plant.CalcTotalMass(context=plant_context, model_instances=[rotor_instance])
     prop_thrust = 1.00 * config.g_mag * rotor_mass / config.u_num # splitting thurst over all propellers
-    config.u_zero = prop_thrust * np.ones(config.u_num) # setting control
-
-    config.u_zero[0] = 0.999 * config.u_zero[0]
-    config.u_zero[2] = 0.999 * config.u_zero[2]
-    config.u_zero[4] = 0.999 * config.u_zero[4]
+    u_zero = prop_thrust * np.ones(config.u_num) # setting control
 
     # assigning initial conditions
-    plant.SetVelocities(context=plant_context, v=config.v_zero) # hexrotor velocities
+    plant.SetVelocities(context=plant_context, v=v_zero) # hexrotor velocities
 
     open_diagram_input_port = open_diagram.GetInputPort(port_name='propeller_thrusts')
-    open_diagram_input_port.FixValue(context=open_context, value=config.u_zero) # hexrotor thrusts
+    open_diagram_input_port.FixValue(context=open_context, value=u_zero) # hexrotor thrusts
+
+    # update configuration
+    if context_type == 'initial': # if initial context
+        config.q_initial = q_zero # initial rotor positions
+        config.v_initial = v_zero # initial rotor velocities
+        config.u_initial = u_zero # initial rotor thrusts
+    elif context_type == 'equil': # if equilibrium context
+        config.q_equil = q_zero # equilibrium rotor positions
+        config.v_equil = v_zero # equilibrium rotor velocities
+        config.u_equil = u_zero # equilibrium rotor thrusts
 
     # return context
     return open_context

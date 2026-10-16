@@ -33,7 +33,6 @@ def VisualInit(builder: DiagramBuilder, query_object_port: OutputPort) -> tuple[
     print(f'\n=====INITIALIZING VISUALIZER=====')
 
     config.meshcat = StartMeshcat() # initialize meshcat
-    # print(f'Open this URL in your browser: {meshcat.web_url()}')
 
     # adding visualizer to builder
     visualizer = MeshcatVisualizer.AddToBuilder(

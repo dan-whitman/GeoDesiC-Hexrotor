@@ -1,14 +1,14 @@
 ##### PYDRAKE IMPORTS
-from pydrake.systems.primitives import LinearSystem, FirstOrderTaylorApproximation
+from pydrake.systems.framework import Diagram, Context
+from pydrake.systems.primitives import AffineSystem, FirstOrderTaylorApproximation
 
 ##### OTHER IMPORTS
 
-##### LINEARIZE FUNCTION (takes in diagram and context to find linearized system)
-def LinearSys(system, context) -> LinearSystem:
-    # finding the linearized affine system (xd = Ax + Bu + f0)
-    affine_system =  FirstOrderTaylorApproximation(system=system, context=context)
+##### SELF_DEFINED IMPORTS
 
-    # converting to regular linear system
-    A = affine_system.A()
-    B = affine_system.B()
-    return LinearSystem(A=A, B=B)
+##### LINEARIZE FUNCTION (takes in diagram and context to find linearized system)
+def LinearSys(system: Diagram, context: Context) -> AffineSystem:
+    print(f'\n=====LINEARIZING SYSTEM=====')
+
+    # finding the linearized affine system (xd = Ax + Bu + f0)
+    return FirstOrderTaylorApproximation(system=system, context=context)

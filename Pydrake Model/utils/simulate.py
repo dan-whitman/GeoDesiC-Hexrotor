@@ -16,14 +16,11 @@ def SimDiagram(closed_diagram: Diagram) -> Diagram:
     sim_builder = DiagramBuilder()
 
     # adding the closed-loop diagram
-    sim_plant = sim_builder.AddNamedSystem(name='closed_diagram', system=closed_diagram)
+    sim_builder.AddNamedSystem(name='closed_diagram', system=closed_diagram)
 
-    # exposing ports (CHANGE LATER WHEN CONTROL IMPLEMENTED)
-    sim_builder.ExportInput(input=sim_plant.GetInputPort(port_name='propeller_thrusts'), name='propeller_thrusts') # propeller inputs
-    sim_builder.ExportOutput(output=sim_plant.GetOutputPort(port_name='rotor_state'), name='rotor_state')
 
-    # adding visualizaer (CHANGE LATER TO MAKE OPTIONAL)
-    sim_query_object_port = sim_plant.GetOutputPort(port_name='geometry_query')
+    # adding visualizaer (CHANGE LATER TO MAKE VISUALIZATION OPTIONAL)
+    sim_query_object_port = closed_diagram.GetOutputPort(port_name='geometry_query')
     sim_builder, _ = VisualInit(builder=sim_builder, query_object_port=sim_query_object_port)
 
     # complete diagram
@@ -39,10 +36,6 @@ def SimContext(sim_diagram: Diagram, initial_context: Context) -> Context:
 
     sim_closed_context = closed_diagram.GetMyMutableContextFromRoot(root_context=sim_context)
     sim_closed_context.SetStateAndParametersFrom(source=initial_context)
-
-    # assigning initial conditions (CHANGE LATER WHEN CONTROL IMPLEMENTED)
-    sim_diagram_input_port = sim_diagram.GetInputPort(port_name='propeller_thrusts')
-    sim_diagram_input_port.FixValue(context=sim_context, value=config.u_zero)
 
     # return context
     return sim_context
