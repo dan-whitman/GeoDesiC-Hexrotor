@@ -1,20 +1,21 @@
 # Pydrake Model
 
 **Completed:**
-- Basic .urdf and .xacro hexrotor description
+- Basic ```.urdf``` and ```.xacro``` hexrotor description
 - Linearized system about hover equilibrium
 - Linear controllability determination about hover equilibirum
 - Functioning simulation and visualization
-- 
+- Implemented LQR controller around equilibrium
+-
 
 **Next Steps:**
-- Implement LQR controller
-- Implement trajectory tracking for controller testing
+- Write solver for arbitrary equilibrium state configuration/thrusts
+- Implement trajectory tracking
 - 
 
 **As Needed:**
-- Update .urdf to better match physical hexrotor
-- Implement more .xacro capabilities to automate .urdf generation
+- Update ```.urdf``` to better match physical hexrotor
+- Implement more ```.xacro``` capabilities to automate ```.urdf``` generation
 - 
 
 ## Overview
@@ -22,18 +23,30 @@ This directory includes the current Pydrake model for dynamical modeling and con
 
 ## Contents
 - **HexRotorDrake.py:** main script for model
+- **/inputs:**
+    - ```config.py:``` configuration file for model user inputs
 - **/models:**
-    - *HexRotor.urdf.xacro:* .urdf.xacro file for the hexrotor
+    - ```HexRotor.urdf.xacro:``` ```.urdf.xacro``` file for the hexrotor
 - **/utils:** 
-    - *control.py:* scripts for the controller design and implementation
-    - *linear.py:* scripts for model linearization
-    - *xacro.py:* scripts for .xacro commands
+    - ```control.py:``` scripts for the controller design and implementation
+    - ```linear.py:``` scripts for model linearization
+    - ```print.py:``` scripts for printing model informations in terminal
+    - ```simulate.py:``` scripts for model simulation
+    - ```system.py:``` scripts for generating plant hexrotor model
+    - ```visual.py:``` scripts for visualizing simulation
+    - ```xacro.py:``` scripts for .xacro commands
 - 
 
-## Pydrake Configuration
-First, you must run the following command in terminal to establish pydrake environment variable prior to running script (taken from [Drake: Installation via APT](https://drake.mit.edu/apt.html)):
+## PYDRAKE CONFIGURATION:
+First, you must run the following command in terminal *or* include it in your ```~/.bashrc``` file to establish pydrake environment variable prior to running script (taken from [Drake: Installation via APT](https://drake.mit.edu/apt.html)):
 ```bash
 export PATH="/opt/drake/bin${PATH:+:${PATH}}"
 export PYTHONPATH="/opt/drake/lib/python$(python3 -c 'import sys; print("{0}.{1}".format(*sys.version_info))')/site-packages${PYTHONPATH:+:${PYTHONPATH}}"
 ```
-- Note: this is for standard Ubuntu WSL installation/implementation, it may differ for other distros.
+
+You must *also* install ```xacro``` so that the script an parse the ```.xacro.urdf``` file. This is *not* shown in the ```requirements.txt``` file. To do this, in terminal (if using ```pipx```):
+```bash
+pipx install xacro
+```
+
+- Note: this configuration is for standard Ubuntu-26.04 WSL installation/implementation. It may differ for other distros.
