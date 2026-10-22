@@ -68,6 +68,8 @@
   <xacro:property name="prop_iyz" value = "0.0"/>
   <xacro:property name="prop_joint_origin_r" value = "${split_xsize/2} ${-split_ysize/2} ${split_zsize/2}"/>
   <xacro:property name="prop_joint_origin_l" value = "${-split_xsize/2} ${-split_ysize/2} ${split_zsize/2}"/>
+  <!-- <xacro:property name="prop_joint_origin_r" value = "${split_xsize/2} 0.0 ${split_zsize/2}"/> -->
+  <!-- <xacro:property name="prop_joint_origin_l" value = "${-split_xsize/2} 0.0 ${split_zsize/2}"/> -->
   <xacro:property name="prop_joint_rpy" value = "${pi/2} 0.0 0.0"/>
   <!-- #endregion -->
 
@@ -371,7 +373,8 @@
   <joint name="base_to_arm_1" type="revolute">
     <parent link="rotor_base"/>
     <child link="rotor_arm_1"/>
-    <origin xyz="0.0 ${base_radius} 0.0" rpy="${-pi/2} 0.0 0.0"/>
+    <!-- <origin xyz="${base_radius*cos(pi/6)} ${-base_radius*sin(pi/6)} 0.0" rpy="${-pi/2} 0.0 ${-pi/6-pi/2}"/> -->
+    <origin xyz="${base_radius*sin(pi/6)} ${base_radius*cos(pi/6)} 0.0" rpy="${-pi/2} 0.0 ${-pi/6}"/>
     <axis xyz="${arm_joint_axis}"/>
     <limit lower="${-arm_joint_limit}" upper="${arm_joint_limit}" effort="${arm_joint_effort}" velocity="1.0"/>
   </joint>
@@ -379,7 +382,8 @@
   <joint name="base_to_arm_2" type="revolute">
     <parent link="rotor_base"/>
     <child link="rotor_arm_2"/>
-    <origin xyz="${base_radius*cos(pi/6)} ${-base_radius*sin(pi/6)} 0.0" rpy="${-pi/2} 0.0 ${-pi/6-pi/2}"/>
+    <!-- <origin xyz="0.0 ${base_radius} 0.0" rpy="${-pi/2} 0.0 0.0"/> -->
+    <origin xyz="${-base_radius} 0.0 0.0" rpy="${-pi/2} 0.0 ${pi/2}"/>
     <axis xyz="${arm_joint_axis}"/>
     <limit lower="${-arm_joint_limit}" upper="${arm_joint_limit}" effort="${arm_joint_effort}" velocity="1.0"/>
   </joint>
@@ -387,7 +391,8 @@
   <joint name="base_to_arm_3" type="revolute">
     <parent link="rotor_base"/>
     <child link="rotor_arm_3"/>
-    <origin xyz="${-base_radius*cos(pi/6)} ${-base_radius*sin(pi/6)} 0.0" rpy="${-pi/2} 0.0 ${+pi/6+pi/2}"/>
+    <!-- <origin xyz="${-base_radius*cos(pi/6)} ${-base_radius*sin(pi/6)} 0.0" rpy="${-pi/2} 0.0 ${+pi/6+pi/2}"/> -->
+    <origin xyz="${base_radius*sin(pi/6)} ${-base_radius*cos(pi/6)} 0.0" rpy="${-pi/2} 0.0 ${-pi/6-2*pi/3}"/>
     <axis xyz="${arm_joint_axis}"/>
     <limit lower="${-arm_joint_limit}" upper="${arm_joint_limit}" effort="${arm_joint_effort}" velocity="1.0"/>
   </joint>

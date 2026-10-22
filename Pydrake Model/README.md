@@ -6,10 +6,12 @@
 - Linear controllability determination about hover equilibirum
 - Functioning simulation and visualization
 - Implemented LQR controller around equilibrium
--
+- Analytical solver for arbitrary equilibrium state configuration
+- 
 
 **Next Steps:**
-- Write solver for arbitrary equilibrium state configuration/thrusts
+- Implement numerical solver for equilibrium state and compare
+- Solve for required state configuration to reach desired velocities and pose
 - Implement trajectory tracking
 - 
 

@@ -34,11 +34,12 @@ def ControlLQRDiagram(affine_system: AffineSystem) -> Diagram:
     # create LQR gain matrices (CAN MAKE MORE ADJUSTABLE LATER)
     Q = np.ones(config.q_num + config.v_num) # Q matrix gain vector
     if config.args.quats == 1: # if using quaternions
-        Q[1:4] = config.lqr_rpy_gain # orientation gains
-        Q[4:7] = config.lqr_pos_gain # position gains
+        Q[1:4] = config.lqr_rpy_gains # orientation gains
+        Q[4:7] = config.lqr_pos_gains # position gains
     else: # if using rpy
-        Q[0:3] = config.lqr_rpy_gain # orientation gains
-        Q[3:6] = config.lqr_pos_gain # position gains
+        Q[0:3] = config.lqr_rpy_gains # orientation gains
+        Q[3:6] = config.lqr_pos_gains # position gains
+    Q[-3:] = config.lqr_arm_gains # arm gains
 
     R = np.ones(config.u_num) # R matrix gain vector
 

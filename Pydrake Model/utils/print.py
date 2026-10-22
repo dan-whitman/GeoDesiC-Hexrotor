@@ -9,6 +9,13 @@ import scipy.linalg as la
 ##### SELF_DEFINED IMPORTS
 import inputs.config as config
 
+##### HEXROTOR INFORMATION PRINT FUNCTION (prints information about hexrotor)
+def PrintHexRotor() -> None:
+    print(f'\n=====HEXROTOR INFORMATION=====')
+
+    # print hexrotor body COM
+    print(f'x_com = {config.rotor_com[0]}, y_com = {config.rotor_com[1]}, z_com = {config.rotor_com[2]}')
+
 ##### STATE VARIABLE PRINT FUNCTION (prints state coordinates and velocities)
 def PrintGenCoords(diagram: Diagram) -> None:
     print(f'\n=====GENERALIZED COORDINATES=====')

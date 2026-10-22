@@ -119,6 +119,10 @@ def HexRotorInitialContext(open_diagram: Diagram) -> Context:
     plant = open_diagram.GetSubsystemByName(name='plant') # obtaining plant
     plant_context = plant.GetMyMutableContextFromRoot(root_context=initial_context) # getting plant context
 
+    # finding hexrotor COM
+    rotor_instance = plant.GetModelInstanceByName(name='hex_rotor') # hexrotor instance
+    config.rotor_com = plant.CalcCenterOfMassPositionInWorld(context=plant_context, model_instances=[rotor_instance])
+
     # placing hexrotor
     rotor_body = plant.GetBodyByName(name='rotor_base')
     X_WR = RigidTransform(rpy=config.rotor_initial_rpy, p=config.rotor_initial_position) # target transform
@@ -131,9 +135,8 @@ def HexRotorInitialContext(open_diagram: Diagram) -> Context:
 
     v_initial = np.zeros(config.v_num) # setting velocities (CAN CHANGE TO ALLOW INITIAL VELOCITIES LATER)
 
-    rotor_instance = plant.GetModelInstanceByName(name='hex_rotor') # hexrotor instance
-    rotor_mass = plant.CalcTotalMass(context=plant_context, model_instances=[rotor_instance]) # finding hexrotor mass
-    prop_thrust = 1.00 * config.g_mag * rotor_mass / config.u_num # splitting thurst over all propellers (assumes all propellers facing up)
+    config.rotor_mass = plant.CalcTotalMass(context=plant_context, model_instances=[rotor_instance]) # finding hexrotor mass
+    prop_thrust = 1.00 * config.g_mag * config.rotor_mass / config.u_num # splitting thurst over all propellers (assumes all propellers facing up)
     u_initial = prop_thrust * np.ones(config.u_num) # setting control (CAN CHANGE TO ALLOW ARBITRARY INITIAL THRUST LATER)
 
     # assigning initial conditions

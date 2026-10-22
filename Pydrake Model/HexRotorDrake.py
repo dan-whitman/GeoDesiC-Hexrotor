@@ -16,7 +16,7 @@ from utils.system import HexRotorDiagram, HexRotorInitialContext, HexRotorEquilC
 from utils.linear import LinearSys
 from utils.control import ControlLQRDiagram, ControlDiagram
 from utils.simulate import SimDiagram, SimContext, SimRun
-from utils.print import PrintGenCoords, PrintLinearSys
+from utils.print import PrintGenCoords, PrintLinearSys, PrintHexRotor
 from utils.visual import VisualHold
 
 ##### SCRIPT INITIALIZATION FUNCTION (initializes commands and config args)
@@ -55,6 +55,7 @@ if __name__ == '__main__':
     # printing system information
     PrintGenCoords(diagram=open_diagram)
     PrintLinearSys(affine_system=open_affine_system)
+    PrintHexRotor()
 
     VisualHold() # holding visualization open (CHANGE LATER TO MAKE VISUALIZATION OPTIONAL)
 
