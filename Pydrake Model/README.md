@@ -13,6 +13,7 @@
 - Propeller saturation (and reviersiblity? probably not needed)
 - Data output and logging/plotting state and thrusts over time
 - Implement numerical solver for equilibrium state and compare to analytical
+- Point-to-point controller during simulation (change equilibrium mid-simulation)
 - Solve for required state configuration to reach desired acceleration at pose
 - Implement trajectory tracking following ^^^
 - 
