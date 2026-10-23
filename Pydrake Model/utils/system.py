@@ -39,7 +39,7 @@ def HexRotorPlantScene(builder: DiagramBuilder, time_step: float) -> tuple[Multi
     )
 
     # adding models to plant
-    HexRotor = XacroToURDF(filepath=str(config.MOD_DIR / 'HexRotor.urdf.xacro'))
+    HexRotor = XacroToURDF(filepath=str(config.MOD_DIR / 'HexRotor.urdf.xacro'), args=config.xacro_args)
 
     parser.AddModelsFromString(file_contents=HexRotor, file_type='urdf')
 
@@ -110,6 +110,28 @@ def HexRotorDiagram() -> Diagram:
     # complete diagram
     return open_builder.Build()
 
+##### HEXROTOR COM COMPUTE FUNCTION (computes com position for context)
+def HexRotorCOM(plant: MultibodyPlant, context: Context) -> np.array:
+    print(f'\n=====COMPUTING HEXROTOR HEXROTOR COM=====')
+
+    # getting old context pose for storage
+    q_saved = plant.GetPositions(context=context)
+
+    # finding hexrotor and placing at world origin
+    rotor_instance = plant.GetModelInstanceByName(name='hex_rotor') # hexrotor instance
+    rotor_body = plant.GetBodyByName(name='rotor_base') # hexrotor base body
+    X_WR = RigidTransform.Identity() # place at origin
+    plant.SetFreeBodyPose(context=context, body=rotor_body, X_JpJc=X_WR) # placing hexrotor
+
+    # calculate COM with respect to world frame (identical to body frame)
+    rotor_com = plant.CalcCenterOfMassPositionInWorld(context=context, model_instances=[rotor_instance])
+
+    # replace hexrotor at position
+    plant.SetPositions(context=context, q=q_saved)
+
+    # return COM
+    return rotor_com
+
 ##### HEXROTOR INITIAL CONTEXT FUNCTION (creates initial context for diagram)
 def HexRotorInitialContext(open_diagram: Diagram) -> Context:
     print(f'\n=====CREATING HEXROTOR INITIAL CONTEXT=====')
@@ -119,12 +141,8 @@ def HexRotorInitialContext(open_diagram: Diagram) -> Context:
     plant = open_diagram.GetSubsystemByName(name='plant') # obtaining plant
     plant_context = plant.GetMyMutableContextFromRoot(root_context=initial_context) # getting plant context
 
-    # finding hexrotor COM
-    rotor_instance = plant.GetModelInstanceByName(name='hex_rotor') # hexrotor instance
-    config.rotor_com = plant.CalcCenterOfMassPositionInWorld(context=plant_context, model_instances=[rotor_instance])
-
     # placing hexrotor
-    rotor_body = plant.GetBodyByName(name='rotor_base')
+    rotor_body = plant.GetBodyByName(name='rotor_base') # hexrotor base body
     X_WR = RigidTransform(rpy=config.rotor_initial_rpy, p=config.rotor_initial_position) # target transform
     plant.SetFreeBodyPose(context=plant_context, body=rotor_body, X_JpJc=X_WR) # placing hexrotor
 
@@ -135,6 +153,7 @@ def HexRotorInitialContext(open_diagram: Diagram) -> Context:
 
     v_initial = np.zeros(config.v_num) # setting velocities (CAN CHANGE TO ALLOW INITIAL VELOCITIES LATER)
 
+    rotor_instance = plant.GetModelInstanceByName(name='hex_rotor') # hexrotor instance
     config.rotor_mass = plant.CalcTotalMass(context=plant_context, model_instances=[rotor_instance]) # finding hexrotor mass
     prop_thrust = 1.00 * config.g_mag * config.rotor_mass / config.u_num # splitting thurst over all propellers (assumes all propellers facing up)
     u_initial = prop_thrust * np.ones(config.u_num) # setting control (CAN CHANGE TO ALLOW ARBITRARY INITIAL THRUST LATER)
@@ -169,7 +188,16 @@ def HexRotorEquilContext(open_diagram: Diagram) -> Context:
     plant.SetFreeBodyPose(context=plant_context, body=rotor_body, X_JpJc=X_WR) # placing hexrotor
 
     # solving for pose equilibrium state and control
-    q_equil, v_equil, u_equil = EquilSolve(plant=plant, plant_context=plant_context)
+    config.rotor_com = HexRotorCOM(plant=plant, context=plant_context) # find COM assuming no arm angles
+    q_equil, v_equil, u_equil = EquilSolve(plant=plant, plant_context=plant_context) # find equilibrium states
+
+    # assigning initial conditions
+    plant.SetPositions(context=plant_context, q=q_equil) # hexrotor positions
+    plant.SetVelocities(context=plant_context, v=v_equil) # hexrotor velocities
+
+    # solving again (recursive to compensate for altered COM and arm angles)
+    config.rotor_com = HexRotorCOM(plant=plant, context=plant_context) # find COM assuming no arm angles
+    q_equil, v_equil, u_equil = EquilSolve(plant=plant, plant_context=plant_context) # find equilibrium states
 
     # assigning initial conditions
     plant.SetPositions(context=plant_context, q=q_equil) # hexrotor positions

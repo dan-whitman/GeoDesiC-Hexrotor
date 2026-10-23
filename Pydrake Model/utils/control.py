@@ -41,7 +41,7 @@ def ControlLQRDiagram(affine_system: AffineSystem) -> Diagram:
         Q[3:6] = config.lqr_pos_gains # position gains
     Q[-3:] = config.lqr_arm_gains # arm gains
 
-    R = np.ones(config.u_num) # R matrix gain vector
+    R = config.u_thrust_gains * np.ones(config.u_num) # R matrix gain vector
 
     N = np.zeros((config.q_num + config.v_num, config.u_num)) # N matrix gain vector
 

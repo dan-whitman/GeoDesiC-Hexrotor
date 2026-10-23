@@ -53,7 +53,8 @@ def SimRun(sim_diagram: Diagram, sim_context: Context) -> None:
     VisualStart()
 
     # running simulation
-    simulator.AdvanceTo(boundary_time=config.simulation_duration) # advance simulation
+    if config.args.sim == 1: simulator.AdvanceTo(boundary_time=config.simulation_duration) # advance simulation
+    else: simulator.AdvanceTo(boundary_time=1e-6) # don't advance but still visualize (useful for initial condition testing)
 
     # end visualization (CHANGE LATER TO MAKE OPTIONAL)
     VisualStop()
